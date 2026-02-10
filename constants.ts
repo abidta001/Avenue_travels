@@ -1,7 +1,4 @@
 
-import { TripStatus, TransportType, FinanceType, PaymentStatus } from './types';
-
-// Encoded or hosted version of the provided Avenue logo
 export const LOGO_URL = "https://i.ibb.co/0V8N0f2/avenue-logo.png"; 
 
 export const INITIAL_USERS = [
@@ -22,5 +19,3 @@ export const INITIAL_USERS = [
     profilePic: 'https://picsum.photos/seed/preethi/200'
   }
 ];
-
-
