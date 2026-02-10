@@ -9,9 +9,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Railway and most cloud databases require SSL. 
+// We enable SSL if a DATABASE_URL is provided (which Railway does automatically) and it's not localhost.
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/avenue';
+const isCloudDB = connectionString && !connectionString.includes('localhost');
+
 // Initialize PostgreSQL connection pool
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/avenue'
+  connectionString: connectionString,
+  ...(isCloudDB && { ssl: { rejectUnauthorized: false } })
 });
 
 // Auto-initialize the database table
@@ -25,7 +31,7 @@ pool.query(`
   );
   CREATE INDEX IF NOT EXISTS idx_entity_type ON avenue_data(entity_type);
 `).then(() => {
-  console.log("Database table verified.");
+  console.log(`Database table verified. (SSL Enabled: ${!!isCloudDB})`);
 }).catch(err => {
   console.error("Failed to initialize database table:", err);
 });
@@ -94,5 +100,5 @@ app.delete('/api/data/:type/:id', async (req, res) => {
 // Start Server
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Avenue Backend API is running on http://localhost:${PORT}`);
+  console.log(`Avenue Backend API is running on port ${PORT}`);
 });
